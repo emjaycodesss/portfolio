@@ -115,11 +115,34 @@ function setupSmoothScroll() {
                 if (target) {
                     if (window.lenis) {
                         e.preventDefault();
-                        window.lenis.scrollTo(target, {
-                            offset: 0,
-                            duration: 1.5,
-                            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                        });
+                        
+                        const horizontalSection = document.querySelector('.horizontal-section');
+                        
+                        if (horizontalSection && target.offsetTop > horizontalSection.offsetTop && window.horizontalScrollTrigger) {
+                            window.horizontalScrollTrigger.disable(false);
+                            
+                            window.lenis.scrollTo(target, {
+                                offset: 0,
+                                duration: 1.5,
+                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                                onComplete: () => {
+                                    setTimeout(() => {
+                                        if (window.horizontalScrollTrigger) {
+                                            window.horizontalScrollTrigger.enable();
+                                        }
+                                        if (typeof ScrollTrigger !== 'undefined') {
+                                            ScrollTrigger.refresh();
+                                        }
+                                    }, 200);
+                                }
+                            });
+                        } else {
+                            window.lenis.scrollTo(target, {
+                                offset: 0,
+                                duration: 1.5,
+                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                            });
+                        }
                     }
                 }
             }
@@ -260,7 +283,7 @@ function setupHorizontalScroll() {
                 ease: "none",
             });
 
-            ScrollTrigger.create({
+            window.horizontalScrollTrigger = ScrollTrigger.create({
                 trigger: ".horizontal-section",
                 start: "top top",
                 end: () => "+=" + amountToScroll,
